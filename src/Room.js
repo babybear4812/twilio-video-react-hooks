@@ -1,19 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import Video from 'twilio-video';
 import Participant from './Participant';
-import db from '../firebase/firebase'
+import {db} from './firebase'
+
+import {
+  handleNightToDay,
+  handleDayToNight,
+  handleMajority,
+  handleVillagerVoteButton,
+  handleWerewolfVote,
+  handleSeer,
+  handleMedic,
+  assignRolesAndStartGame,
+} from './logicFunctions';
 
 const Room = ({ roomName, token, handleLogout }) => {
   const [room, setRoom] = useState(null);
   const [participants, setParticipants] = useState([]);
 
+  // potentially needed game logic state
+  const [night, setNight] = useState(true);
+
   useEffect(() => {
     const participantConnected = participant => {
       setParticipants(prevParticipants => [...prevParticipants, participant]);
       console.log("participant is", participant)
-      console.log("room is", room)
+      
+      console.log("room is in pconnected", roomName)
       if(participants.length === 0){
-        db.collection("rooms").doc(room).set({
+        db.collection("rooms").doc(roomName).set({
             Night: false,
             checkMajority: false,
             checkMedic: false,
@@ -36,18 +51,24 @@ const Room = ({ roomName, token, handleLogout }) => {
         })
       } // if
       else{ // if the room is already created, we simply replace participants array with our new state
-        // db.collection("rooms").doc(room).update({participants: participants})
+        let playerIdentitys = participants.map(participant => participant.identity)
+        db.collection("rooms").doc(roomName).update({players: playerIdentitys})
+      }
     };
 
     const participantDisconnected = participant => {
       setParticipants(prevParticipants =>
         prevParticipants.filter(p => p !== participant)
       );
+      let playerIdentitys = participants.map(participant => participant.identity)
+      db.collection("rooms").doc(roomName).update({players: playerIdentitys})
+
     };
 
     Video.connect(token, {
       name: roomName
     }).then(room => {
+      console.log("room is", room)
       setRoom(room);
       room.on('participantConnected', participantConnected);
       room.on('participantDisconnected', participantDisconnected);
@@ -70,7 +91,16 @@ const Room = ({ roomName, token, handleLogout }) => {
   }, [roomName, token]);
 
   const remoteParticipants = participants.map(participant => (
-    <Participant key={participant.sid} participant={participant} />
+    <Participant key={participant.sid} participant={participant}
+              handleVillagerVoteButton={handleVillagerVoteButton}
+              handleSeerCheckButton={handleSeerCheckButton}
+              handleMedicSaveButton={handleMedicSaveButton}
+              handleWerewolfVoteButton={handleWerewolfVoteButton}
+              night={night}
+              
+              />
+              
+             
   ));
 
   return (

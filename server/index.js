@@ -8,6 +8,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(pino);
+console.log("what is config")
 
 const sendTokenResponse = (token, res) => {
   res.set('Content-Type', 'application/json');
@@ -27,6 +28,10 @@ app.get('/api/greeting', (req, res) => {
 app.get('/video/token', (req, res) => {
   const identity = req.query.identity;
   const room = req.query.room;
+  
+  
+  
+  console.log("what is config", config)
   const token = videoToken(identity, room, config);
   sendTokenResponse(token, res);
 
@@ -34,6 +39,7 @@ app.get('/video/token', (req, res) => {
 app.post('/video/token', (req, res) => {
   const identity = req.body.identity;
   const room = req.body.room;
+  console.log("what is config", config)
   const token = videoToken(identity, room, config);
   sendTokenResponse(token, res);
 });

@@ -1,7 +1,7 @@
 module.exports = {
   twilio: {
-    accountSid: process.env.TWILIO_ACCOUNT_SID,
-    apiKey: process.env.TWILIO_API_KEY,
-    apiSecret: process.env.TWILIO_API_SECRET
+    accountSid: "ACaaa52228373d321a6660480b151db441",
+    apiKey: "SKe137c3bf6b50b72039e1d1f202b97b1f",
+    apiSecret: "jRHpVMCmtd7fliFsNfalGKozOmrr8L6r"
   }
 };

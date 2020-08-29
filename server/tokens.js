@@ -17,6 +17,7 @@ const videoToken = (identity, room, config) => {
   } else {
     videoGrant = new VideoGrant();
   }
+  console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$', config)
   const token = generateToken(config);
   token.addGrant(videoGrant);
   token.identity = identity;
