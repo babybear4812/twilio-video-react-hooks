@@ -5,6 +5,7 @@ const Participant = ({
       handleVillagerVoteButton,
       handleSeerCheckButton,
       handleMedicSaveButton,
+      handleWerewolfVoteButton,
       night,
       checkWerewolf,
       checkSeer,
@@ -91,7 +92,7 @@ const Participant = ({
         <h3>{participant.identity}</h3>
         <video ref={videoRef} autoPlay={true} muted={true} />
         <audio ref={audioRef} autoPlay={true} muted={true} />
-        <button onClick={() => handleVillagerVoteButton(userPeerId)}>Kill</button>
+        <button onClick={() => handleVillagerVoteButton(participant.identity)}>Kill</button>
       </div>
 
       </div>
@@ -107,7 +108,7 @@ const Participant = ({
         <h3>{participant.identity}</h3>
         <video ref={videoRef} autoPlay={true} muted={true} />
         <audio ref={audioRef} autoPlay={true} muted={true} />
-        <button onClick={() => handleVillagerVoteButton(userPeerId)}>Kill</button>
+        <button onClick={() => handleVillagerVoteButton(participant.identity)}>Kill</button>
       </div>
 
       </div>
@@ -120,7 +121,7 @@ const Participant = ({
         <h3>{participant.identity}</h3>
         <video ref={videoRef} autoPlay={true} muted={true} />
         <audio ref={audioRef} autoPlay={true} muted={true} />
-        <button onClick={() => handleWerewolfVoteButton(userPeerId)}>Kill</button>
+        <button onClick={() => handleWerewolfVoteButton(participant.identity)}>Kill</button>
       </div>
     );
   }
@@ -130,7 +131,7 @@ const Participant = ({
         <h3>{participant.identity}</h3>
         <video ref={videoRef} autoPlay={true} muted={true} />
         <audio ref={audioRef} autoPlay={true} muted={true} />
-        <button onClick={(e) => handleSeerCheckButton(userPeerId)}>Check Role</button>
+        <button onClick={(e) => handleSeerCheckButton(participant.identity)}>Check Role</button>
       </div>
     );
   }
@@ -140,7 +141,7 @@ const Participant = ({
         <h3>{participant.identity}</h3>
         <video ref={videoRef} autoPlay={true} muted={true} />
         <audio ref={audioRef} autoPlay={true} muted={true} />
-        <button onClick={(e) => handleMedicSaveButton(userPeerId)}>Save Person</button>
+        <button onClick={(e) => handleMedicSaveButton(participant.identity)}>Save Person</button>
       </div>
     );
   }

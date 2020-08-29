@@ -1,3 +1,14 @@
+import {db} from './firebase'
+import {
+    handleNight,
+    handleLocalRole,
+    handleCheckMedic,
+    handleGameStarted,
+    handleCheckWerewolf,
+    handleCheckSeer,
+    handleWerewolfChoice,
+    handleDidSeerHit
+} from './Room.js'
 /**
  * Handles the transition from night to day by checking if werewolves, seer, and medic all voted; kills off the selected player only if the werewolves' choice is not the same as the medic's choice, and updates the game status
  * @param {*} game - game object gotten from the snapshot of the 'rooms' document
@@ -41,7 +52,7 @@ export function handleNightToDay(game, roomName, localUserId) {
       .update(game);
   
    
-    setNight(false)
+    handleNight(false)
   }
   
   /**
@@ -80,7 +91,7 @@ export function handleNightToDay(game, roomName, localUserId) {
       .doc(this.state.gameId)
       .update(game);
   
-    setNight(true)
+    handleNight(true)
   }
   
   /**
@@ -164,59 +175,51 @@ export function handleNightToDay(game, roomName, localUserId) {
       .update({ votesWerewolves: votesWerewolves});
   }
   
-  export async function handleSeerCheckButton(userPeerId) {
-    const userDocId = await db
-      .collection('users')
-      .where('userId', '==', userPeerId)
+  export async function handleSeerCheckButton(participantIdentity, roomName) {
+    const roomObj = await db
+      .collection('room')
+      .doc(roomName)
       .get();
   
-    let werewolves = await db
-      .collection('rooms')
-      .doc(this.state.gameId)
-      .get();
+    let werewolves = roomObj.data().werewolves
   
-    werewolves = werewolves.data().werewolves;
-    if (werewolves.includes(userDocId.docs[0].id)){
-        this.setState({didSeerHit: userDocId.docs[0].id})
+    
+    if (werewolves.includes(participantIdentity)){
+        handleDidSeerHit(participantIdentity)
     }
   
     await db
         .collection('rooms')
-        .doc(this.state.gameId)
+        .doc(roomName)
         .update({ checkSeer: true});
   }
-  export async function handleMedicSaveButton(userPeerId) {
-    const userDocId = await db
-      .collection('users')
-      .where('userId', '==', userPeerId)
-      .get();
-   
-    setCheckMedic(true)
-  
+  export async function handleMedicSaveButton(participantIdentity, roomName) {
+    handleCheckMedic(true)
+
     await db
       .collection('rooms')
-      .doc(this.state.gameId)
-      .update({ checkMedic: true, medicChoice: userDocId.docs[0].id });
+      .doc(roomName)
+      .update({ checkMedic: true, medicChoice: participantIdentity });
   }
   
   /**
    * Checks for a majority vote on werewolves killing one person; once found, updates the werewolves' choice which will be used to announce the player has been killed when night turns to day.
    * @param {*} game - game object gotten from the snapshot of the 'rooms' document
    */
-  export async function handleWerewolfVote(game) {
-    let players = await db
-      .collection('rooms')
-      .doc(this.state.gameId)
-      .get();
+  export async function handleWerewolfVote(roomObj, roomName) {
+    // const roomObj = await db
+    //   .collection('room')
+    //   .doc(roomName)
+    //   .get();
   
-    players = players.data().werewolves;
+    // let players = roomObj.data().players;
     // ^^^ do we need this code above with 'players' ?
   
-    const totalPlayers = game.werewolves.length;
+    const totalPlayers = roomObj.werewolves.length;
   
     let votesWerewolves = await db
       .collection('rooms')
-      .doc(this.state.gameId)
+      .doc(roomName)
       .get();
     votesWerewolves = votesWerewolves.data().votesWerewolves;
   
@@ -238,12 +241,13 @@ export function handleNightToDay(game, roomName, localUserId) {
         // db.collection('rooms').doc(this.state.gameId).villagersChoice.update(player) // find real way to do this
         db
           .collection('rooms')
-          .doc(this.state.gameId)
+          .doc(roomName)
           .update({ werewolvesChoice: player, checkWerewolf: true });
       // also have to update local state
       
-      await setCheckWerewolf(true)
-      await setWerewolfChoice(player)
+    
+      handleCheckWerewolf(true)
+      handleWerewolfChoice(player)
       }
     }
   }
@@ -251,10 +255,10 @@ export function handleNightToDay(game, roomName, localUserId) {
   /**
    * Checks if the seer voted, and (if so) subsequently updates the 'checkSeer' boolean in the 'rooms' database
    */
-  export async function handleSeer() {
+  export async function handleSeer(roomName) {
     const player = await db
       .collection('rooms')
-      .doc(this.state.gameId)
+      .doc(roomName)
       .get();
   
     const seerChoice = player.data().seerChoice;
@@ -264,20 +268,20 @@ export function handleNightToDay(game, roomName, localUserId) {
       console.log('setting checkSeer to true');
       db
         .collection('rooms')
-        .doc(this.state.gameId)
+        .doc(roomName)
         .update({ checkSeer: true });
       // also have to update local state
-      await setCheckSeer(true)
+      handleCheckSeer(true)
     }
   }
   
   /**
    * Checks if the medic voted, and (if so) subsequently updates the 'checkMedic' boolean in the 'rooms' database
    */
-  export async function handleMedic() {
+  export async function handleMedic(roomName) {
     const player = await db
       .collection('rooms')
-      .doc(this.state.gameId)
+      .doc(roomName)
       .get();
   
     const medicChoice = player.data().medicChoice;
@@ -287,12 +291,12 @@ export function handleNightToDay(game, roomName, localUserId) {
       console.log('setting checkMedic to true');
       db
         .collection('rooms')
-        .doc(this.state.gameId)
+        .doc(roomName)
         .update({ checkMedic: true });
   
       // also have to update local state
       
-      await setCheckMedic(true)
+      await handleCheckMedic(true)
     }
   }
   
@@ -369,17 +373,17 @@ export function handleNightToDay(game, roomName, localUserId) {
   
   
   if(gameState.villagers.includes(localUserId)){
-    setLocalRole("villager")
+    handleLocalRole("villager")
   }
   if(gameState.werewolves.includes(localUserId)){
-    setLocalRole("werewolf")
+    handleLocalRole("werewolf")
   }
   if(gameState.seer === localUserId){
   
-    setLocalRole("seer")
+    handleLocalRole("seer")
   }
   if(gameState.medic === localUserId){
-    setLocalRole("medic")
+    handleLocalRole("medic")
   }
   }
   
