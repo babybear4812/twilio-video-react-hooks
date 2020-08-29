@@ -6,6 +6,7 @@ import {db} from './firebase'
  
 
 const Room = ({ roomName, token, handleLogout }) => {
+  
   const [room, setRoom] = useState(null);
   const [participants, setParticipants] = useState([]);
 
@@ -18,6 +19,13 @@ const Room = ({ roomName, token, handleLogout }) => {
   const [checkMedic, setCheckMedic] = useState(false)
   const [werewolfChoice, setWerewolfChoice] = useState(false)
   const [didSeerHit, setDidSeerHit] = useState(false)
+
+  console.log("WHAT IS night", night)
+
+  const handleStartGame = () => {
+    setGameStarted(true)
+    console.log("starting game")
+  }
 
   const handleNight = (someValue) => { 
     // some logic
@@ -56,7 +64,9 @@ const Room = ({ roomName, token, handleLogout }) => {
   // GAME LOGIC FUNCTIONS
 
   function handleNightToDay(game, roomName, localUserId) {
+    console.log("handleNightToDay starting", game, roomName, localUserId)
     if (game.villagers.length === 0) {
+
       this.assignRolesAndStartGame(game, roomName, localUserId);
     }
     this.handleWerewolfVote(game); // checks if werewolves have agreed on a vote, and sets in our DB
@@ -89,7 +99,7 @@ const Room = ({ roomName, token, handleLogout }) => {
   
     db
       .collection('rooms')
-      .doc(this.state.gameId)
+      .doc(roomName)
       .update(game);
   
    
@@ -346,7 +356,7 @@ const Room = ({ roomName, token, handleLogout }) => {
    * @param {*} game - game object gotten from the snapshot of the 'rooms' database once the game starts
    */
    async function assignRolesAndStartGame(game, roomName, localUserId) {
-    console.log('In assignRoles');
+    console.log('In assignRolesAndStartGame', game, roomName,localUserId);
     let users = await db
       .collection('room')
       .doc(roomName)
@@ -362,10 +372,10 @@ const Room = ({ roomName, token, handleLogout }) => {
     let villagers = [];
   
     //shuffle users array
-    for (let i = users.length - 1; i > 0; i--) {
-      let j = Math.floor(Math.random() * (i + 1));
-      [users[i], users[j]] = [users[j], users[i]];
-    }
+    // for (let i = users.length - 1; i > 0; i--) {
+    //   let j = Math.floor(Math.random() * (i + 1));
+    //   [users[i], users[j]] = [users[j], users[i]];
+    // }
   
     users.forEach((doc, i) => {
       console.log('what does my user look like', doc.id);
@@ -430,28 +440,26 @@ const Room = ({ roomName, token, handleLogout }) => {
 
   //end of GAME LOGIC functions
 
-  
-
-
-
-
- 
-
-  
 
  
   useEffect(() => {
+    console.log("GAME STARTED USE EFFECT")
     db
     .collection('rooms')
     .doc(roomName)
     .onSnapshot(async (snapshot) => {
+      console.log("made it into onSnapshot")
       let gameState = snapshot.data();
+
+      console.log("gameState is", gameState)
 
       if (!gameState.gameStarted) return;
 
-      if (gameState.night) {
+      if (gameState.Night) {
+        console.log("pre initial handleNightDay")
         handleNightToDay(gameState, roomName, room.localParticipant.sid);
       } else {
+        console.log("are we making it into here")
         handleDayToNight(gameState);
       }
     });
@@ -460,8 +468,8 @@ const Room = ({ roomName, token, handleLogout }) => {
 
   useEffect(() => {
     const participantConnected = participant => {
-      setParticipants(prevParticipants => [...prevParticipants, participant]);
-      console.log("participant is", participant)
+      setParticipants(prevParticipants => [...prevParticipants, participant.identity]);
+      console.log("participant array is", participants)
       
       console.log("room is in pconnected", roomName)
       if(participants.length === 0){
@@ -476,7 +484,7 @@ const Room = ({ roomName, token, handleLogout }) => {
             majorityReached: false,
             medic: "",
             medicChoice: "",
-            players: [],
+            players: [participant.identity],
             seer: "",
             seerChoice: "",
             villagers: [],
@@ -486,10 +494,15 @@ const Room = ({ roomName, token, handleLogout }) => {
             werewolves: [],
             werewolvesChoice: ""
         })
+        console.log("added our first person", participants)
       } // if
       else{ // if the room is already created, we simply replace participants array with our new state
         let playerIdentitys = participants.map(participant => participant.identity)
+
         db.collection("rooms").doc(roomName).update({players: playerIdentitys})
+
+        console.log("participant array is", participants)
+
       }
     };
 
@@ -557,11 +570,24 @@ const Room = ({ roomName, token, handleLogout }) => {
           <Participant
             key={room.localParticipant.sid}
             participant={room.localParticipant}
+            handleVillagerVoteButton={handleVillagerVoteButton}
+            handleSeerCheckButton={handleSeerCheckButton}
+            handleMedicSaveButton={handleMedicSaveButton}
+            handleWerewolfVoteButton={handleWerewolfVoteButton}
+
+            night={night}
+            localRole={localRole}
+            checkWerewolf={checkWerewolf}
+            checkSeer={checkSeer}
+            checkMedic={checkMedic}
+            werewolfChoice={werewolfChoice}
+            didSeerHit={didSeerHit}
           />
         ) : (
           ''
         )}
       </div>
+      <button onClick={()=>{handleStartGame()}}>Start Game</button>
       <h3>Remote Participants</h3>
       <div className="remote-participants">{remoteParticipants}</div>
     </div>
