@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const Participant = ({ participant }) => {
+const Participant = ({ 
+      participant,
+      handleVillagerVoteButton,
+      handleSeerCheckButton,
+      handleMedicSaveButton,
+      night,
+      checkWerewolf,
+      checkSeer,
+      checkMedic,
+      localRole,
+      werewolfChoice,
+      didSeerHit
+   }) => {
   const [videoTracks, setVideoTracks] = useState([]);
   const [audioTracks, setAudioTracks] = useState([]);
 
@@ -62,13 +74,87 @@ const Participant = ({ participant }) => {
     }
   }, [audioTracks]);
 
-  return (
-    <div className="participant">
-      <h3>{participant.identity}</h3>
-      <video ref={videoRef} autoPlay={true} />
-      <audio ref={audioRef} autoPlay={true} muted={true} />
-    </div>
-  );
+  
+
+  // return (
+  //   <div className="participant">
+  //     <h3>{participant.identity}</h3>
+  //     <video ref={videoRef} autoPlay={true} />
+  //     <audio ref={audioRef} autoPlay={true} muted={true} />
+  //   </div>
+  // );
+  if(!night){
+    return (
+      <div>
+        <h2>{werewolfChoice} was killed during the night</h2>
+        <div className='participant'>
+        <h3>{participant.identity}</h3>
+        <video ref={videoRef} autoPlay={true} muted={true} />
+        <audio ref={audioRef} autoPlay={true} muted={true} />
+        <button onClick={() => handleVillagerVoteButton(userPeerId)}>Kill</button>
+      </div>
+
+      </div>
+      
+    );
+  }
+  if(!night && localRole === 'seer'){
+    return (
+      <div>
+        <h2>{werewolfChoice} was killed during the night</h2>
+        <h2>{didSeerHit} is a werewolf</h2>
+        <div className='participant'>
+        <h3>{participant.identity}</h3>
+        <video ref={videoRef} autoPlay={true} muted={true} />
+        <audio ref={audioRef} autoPlay={true} muted={true} />
+        <button onClick={() => handleVillagerVoteButton(userPeerId)}>Kill</button>
+      </div>
+
+      </div>
+      
+    );
+  }
+  else if(night && !checkWerewolf && localRole === 'werewolf'){
+    return (
+      <div className='participant'>
+        <h3>{participant.identity}</h3>
+        <video ref={videoRef} autoPlay={true} muted={true} />
+        <audio ref={audioRef} autoPlay={true} muted={true} />
+        <button onClick={() => handleWerewolfVoteButton(userPeerId)}>Kill</button>
+      </div>
+    );
+  }
+  else if(night && checkWerewolf && !checkSeer && localRole === 'seer'){
+    return (
+      <div className='participant'>
+        <h3>{participant.identity}</h3>
+        <video ref={videoRef} autoPlay={true} muted={true} />
+        <audio ref={audioRef} autoPlay={true} muted={true} />
+        <button onClick={(e) => handleSeerCheckButton(userPeerId)}>Check Role</button>
+      </div>
+    );
+  }
+  else if(night && checkWerewolf && checkSeer && !checkMedic && localRole === 'medic'){
+    return (
+      <div className='participant'>
+        <h3>{participant.identity}</h3>
+        <video ref={videoRef} autoPlay={true} muted={true} />
+        <audio ref={audioRef} autoPlay={true} muted={true} />
+        <button onClick={(e) => handleMedicSaveButton(userPeerId)}>Save Person</button>
+      </div>
+    );
+  }
+  else {
+    return (
+      <div className='participant'>
+        <h3>{participant.identity}</h3>
+        <video ref={videoRef} autoPlay={false} muted={false} />
+        <audio ref={audioRef} autoPlay={false} muted={false} />
+       
+      </div>
+    );
+  }
+
 };
 
 export default Participant;

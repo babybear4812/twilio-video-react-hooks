@@ -20,6 +20,36 @@ const Room = ({ roomName, token, handleLogout }) => {
 
   // potentially needed game logic state
   const [night, setNight] = useState(true);
+  const [localRole, setLocalRole] = useState("");
+  const [gameStarted,setGameStarted] = useState(false)
+  const [checkWerewolf, setCheckWerewolf] = useState(false)
+  const [checkSeer, setCheckSeer] = useState(false)
+  const [checkMedic, setCheckMedic] = useState(false)
+  const [werewolfChoice, setWerewolfChoice] = useState(false)
+  const [didSeerHit, setDidSeerHit] = useState(false)
+
+  // checkWerewolf={checkWerewolf}
+  //             checkSeer={checkSeer}
+  //             checkMedic={checkMedic}
+  //             werewolfChoice={werewolfChoice}
+  //             didSeerHit={didSeerHit}
+  useEffect(() => {
+    db
+    .collection('rooms')
+    .doc(roomName)
+    .onSnapshot(async (snapshot) => {
+      let gameState = snapshot.data();
+
+      if (!gameState.gameStarted) return;
+
+      if (gameState.night) {
+        handleNightToDay(gameState, roomName, room.localParticipant.sid);
+      } else {
+        handleDayToNight(gameState);
+      }
+    });
+    
+  }, [gameStarted]);
 
   useEffect(() => {
     const participantConnected = participant => {
@@ -96,7 +126,15 @@ const Room = ({ roomName, token, handleLogout }) => {
               handleSeerCheckButton={handleSeerCheckButton}
               handleMedicSaveButton={handleMedicSaveButton}
               handleWerewolfVoteButton={handleWerewolfVoteButton}
+
               night={night}
+              localRole={localRole}
+              checkWerewolf={checkWerewolf}
+              checkSeer={checkSeer}
+              checkMedic={checkMedic}
+              werewolfChoice={werewolfChoice}
+              didSeerHit={didSeerHit}
+
               
               />
               
