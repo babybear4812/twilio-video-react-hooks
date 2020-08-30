@@ -133,15 +133,28 @@ i = (
       </div>
     ) 
   }
-  return (
+  if(shouldWePlay){
+    return (
       <div>
         {i}
         {/* <video ref={videoRef} autoPlay={shouldWePlay} muted={true} />
         <audio ref={audioRef} autoPlay={shouldWePlay} muted={true} /> */}
-        <VideoAudio shouldWePlay={shouldWePlay} participant={participant} />
+        <VideoAudio participant={participant} />
       </div>
-  )
+    )
+  }
+  else {
+    return (
+      <div>
+        {i}
+        {/* <video ref={videoRef} autoPlay={shouldWePlay} muted={true} />
+        <audio ref={audioRef} autoPlay={shouldWePlay} muted={true} /> */}
+        <div>You are not allowed to see video at this time</div>
+      </div>
+    )
+  }
 
+  
 };
 
 export default Participant;

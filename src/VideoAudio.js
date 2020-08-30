@@ -73,8 +73,8 @@ const VideoAudio = ({participant, shouldWePlay}) => {
 
     return (
         <div>
-            <video ref={videoRef} autoPlay={true} muted={true} />
-            <audio ref={audioRef} autoPlay={true} muted={true} />
+            <video ref={videoRef} autoPlay={shouldWePlay} muted={true} />
+            <audio ref={audioRef} autoPlay={shouldWePlay} muted={true} />
         </div>
     
     )
