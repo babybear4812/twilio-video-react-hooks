@@ -73,7 +73,7 @@ const Room = ({ roomName, token, handleLogout }) => {
 
       assignRolesAndStartGame(game, roomName, localUserId);
     }
-    handleWerewolfVote(game); // checks if werewolves have agreed on a vote, and sets in our DB
+    handleWerewolfVote(game,roomName); // checks if werewolves have agreed on a vote, and sets in our DB
     // this.handleSeer();
     // this.handleMedic();
     if (game.checkWerewolf && game.checkSeer && game.checkMedic) {
@@ -354,14 +354,14 @@ const Room = ({ roomName, token, handleLogout }) => {
    * @param {*} game - game object gotten from the snapshot of the 'rooms' database once the game starts
    */
    async function assignRolesAndStartGame(game, roomName, localUserId) {
-    //console.log('In assignRolesAndStartGame', game, roomName,localUserId);
-    let users = await db
-      .collection('room')
+    console.log('In assignRolesAndStartGame', game, roomName,localUserId);
+    let gameState = await db
+      .collection('rooms')
       .doc(roomName)
       .get();
   
     
-    users = users.data().players
+    let players = gameState.data().players
   
     //randomize later
     //console.log('what is users in assign roles', users);
@@ -375,27 +375,27 @@ const Room = ({ roomName, token, handleLogout }) => {
     //   [users[i], users[j]] = [users[j], users[i]];
     // }
   
-    users.forEach((doc, i) => {
+    players.forEach((playerName, i) => {
       //console.log('what does my user look like', doc.id);
-      let user = doc.id;
+      
   
       if (i < 2) {
         //console.log('werewolves are ', werewolves);
-        werewolves.push(user);
+        werewolves.push(playerName);
       } else if (i === 2) {
         db
           .collection('rooms')
           .doc(roomName)
-          .update({ seer: user });
-        villagers.push(user);
+          .update({ seer: playerName });
+        villagers.push(playerName);
       } else if (i === 3) {
         db
           .collection('rooms')
           .doc(roomName)
-          .update({ medic: user });
-        villagers.push(user);
+          .update({ medic: playerName });
+        villagers.push(playerName);
       } else {
-        villagers.push(user);
+        villagers.push(playerName);
       }
     });
   
@@ -416,22 +416,27 @@ const Room = ({ roomName, token, handleLogout }) => {
     const gameState = db
     .collection('rooms')
     .doc(roomName).get()
+
+    
   
   
   //search for localUsersRole
+  let villagers = gameState.data().villagers
+  let werewolves = gameState.data().werewolves
+  let seer = gameState.data().seer
+  let medic = gameState.data().medic
   
-  
-  if(gameState.villagers.includes(localUserId)){
+  if(villagers.includes(localUserId)){
     handleLocalRole("villager")
   }
-  if(gameState.werewolves.includes(localUserId)){
+  if(werewolves.includes(localUserId)){
     handleLocalRole("werewolf")
   }
-  if(gameState.seer === localUserId){
+  if(seer === localUserId){
   
     handleLocalRole("seer")
   }
-  if(gameState.medic === localUserId){
+  if(medic === localUserId){
     handleLocalRole("medic")
   }
   }
@@ -440,29 +445,31 @@ const Room = ({ roomName, token, handleLogout }) => {
 
 
  
-  useEffect(() => {
-    //console.log("GAME STARTED USE EFFECT")
-    db
-    .collection('rooms')
-    .doc(roomName)
-    .onSnapshot(async (snapshot) => {
-      //console.log("made it into onSnapshot")
-      let gameState = snapshot.data();
+  // useEffect(() => {
+  //   //console.log("GAME STARTED USE EFFECT")
+  //   db
+  //   .collection('rooms')
+  //   .doc(roomName)
+  //   .onSnapshot(async (snapshot) => {
+  //     //console.log("made it into onSnapshot")
+  //     let gameState = snapshot.data();
 
-      //console.log("gameState is", gameState)
+  //     //console.log("gameState is", gameState)
 
-      if (!gameState.gameStarted) return;
+  //     if (!gameState.gameStarted) return;
 
-      if (gameState.Night) {
-        //console.log("pre initial handleNightDay")
-        handleNightToDay(gameState, roomName, room.localParticipant.sid);
-      } else {
-        //console.log("are we making it into here")
-        handleDayToNight(gameState,roomName);
-      }
-    });
+  //     if (gameState.Night) {
+  //       //console.log("pre initial handleNightDay")
+  //       console.log("what is our local identity", participants[0])
+        
+  //       handleNightToDay(gameState, roomName, participants[0].identity);
+  //     } else {
+  //       //console.log("are we making it into here")
+  //       handleDayToNight(gameState,roomName);
+  //     }
+  //   });
     
-  }, [gameStarted]);
+  // }, [gameStarted]);
 
    useEffect(() => {
     const participantConnected = async participant => {
@@ -471,10 +478,17 @@ const Room = ({ roomName, token, handleLogout }) => {
     };
 
     const participantDisconnected = participant => {
+
+
+      console.log("player identity BEFOR ", participants)
       setParticipants(prevParticipants =>
         prevParticipants.filter(p => p !== participant)
       );
       let playerIdentitys = participants.map(participant => participant.identity)
+      setTimeout(function(){ alert("Hello"); }, 3000);
+
+      console.log("player identity AFTER ", playerIdentitys)
+
       db.collection("rooms").doc(roomName).update({players: playerIdentitys})
 
     };
@@ -495,28 +509,42 @@ const Room = ({ roomName, token, handleLogout }) => {
       db.collection("rooms").doc(roomName).update({players: prevPlayers})
 
 
-
-
-
-      
-      
-    
-      
-
-
-
       room.on('participantConnected', participantConnected);
       room.on('participantDisconnected', participantDisconnected);
       room.participants.forEach(participantConnected);
+
+      db
+      .collection('rooms')
+      .doc(roomName)
+      .onSnapshot(async (snapshot) => {
+        //console.log("made it into onSnapshot")
+        let gameState = snapshot.data();
+
+        //console.log("gameState is", gameState)
+
+        if (!gameState.gameStarted) return;
+
+        if (gameState.Night) {
+          //console.log("pre initial handleNightDay")
+          
+          
+          handleNightToDay(gameState, roomName,room.localParticipant.identity);
+        } else {
+          //console.log("are we making it into here")
+          handleDayToNight(gameState,roomName);
+        }
+      });
     });
 
     return () => {
-      setRoom(currentRoom => {
+      setRoom(async currentRoom => {
         if (currentRoom && currentRoom.localParticipant.state === 'connected') {
           currentRoom.localParticipant.tracks.forEach(function(trackPublication) {
             trackPublication.track.stop();
           });
           currentRoom.disconnect();
+          
+
           return null;
         } else {
           return currentRoom;

@@ -86,9 +86,9 @@ const Participant = ({
   //   </div>
   // );
   if(!participant) return
-  console.log("what is participant11111111", participant)
+  //console.log.log("what is participant11111111", participant)
   if(!night){
-    console.log("DURING THE DAY NO OTHER CHECKS")
+    //console.log.log("DURING THE DAY NO OTHER CHECKS")
     return (
       <div>
         <h3>DURING THE DAY NO OTHER CHECKS , role= {localRole}</h3>
@@ -105,7 +105,7 @@ const Participant = ({
     );
   }
   else if(!night && localRole === 'seer'){
-    console.log("DURING THE DAY AND WE ARE THE SEER")
+    //console.log.log("DURING THE DAY AND WE ARE THE SEER")
     return (
       <div>
         <h3>DURING THE DAY AND WE ARE THE SEER</h3>
@@ -123,7 +123,7 @@ const Participant = ({
     );
   }
   else if(night && !checkWerewolf && localRole === 'werewolf'){
-    console.log("DURING THE NIGHT AND WEREWOLVES AREN'T DONE CHECKING AND WE ARE A WEREWOLF")
+    //console.log.log("DURING THE NIGHT AND WEREWOLVES AREN'T DONE CHECKING AND WE ARE A WEREWOLF")
     return (
       <div className='participant'>
         <h3>DURING THE NIGHT AND WEREWOLVES AREN'T DONE CHECKING AND WE ARE A WEREWOLF , role= {localRole}</h3>
@@ -135,7 +135,7 @@ const Participant = ({
     );
   }
   else if(night && checkWerewolf && !checkSeer && localRole === 'seer'){
-    console.log("DURIONG THE NIGHT AND WEREWOLVES ARE DONE, SEER IS NOT DONE, AND WE ARE THE SEER")
+    //console.log.log("DURIONG THE NIGHT AND WEREWOLVES ARE DONE, SEER IS NOT DONE, AND WE ARE THE SEER")
     return (
       <div className='participant'>
         <h3>DURIONG THE NIGHT AND WEREWOLVES ARE DONE, SEER IS NOT DONE, AND WE ARE THE SEER , role= {localRole}</h3>
@@ -147,7 +147,7 @@ const Participant = ({
     );
   }
   else if(night && checkWerewolf && checkSeer && !checkMedic && localRole === 'medic'){
-    console.log("DURING THE NIGHT AND WEREWOLVES ARE DONE AND SEE IS DONE AND MEDIC IS NOT DONE AND WE ARE THE MEDIC")
+    //console.log.log("DURING THE NIGHT AND WEREWOLVES ARE DONE AND SEE IS DONE AND MEDIC IS NOT DONE AND WE ARE THE MEDIC")
     return (
       <div className='participant'>
         <h3>DURING THE NIGHT AND WEREWOLVES ARE DONE AND SEE IS DONE AND MEDIC IS NOT DONE AND WE ARE THE MEDIC , role= {localRole}</h3>
@@ -159,13 +159,13 @@ const Participant = ({
     );
   }
   else {
-    console.log("DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER")
+    //console.log.log("DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER")
     return (
       <div className='participant'>
         <h3>DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER, OR DONE WITH OUR TASK, role= {localRole}</h3>
         <h3>{participant.identity}</h3>
-        <video ref={videoRef} autoPlay={true} muted={true} />
-        <audio ref={audioRef} autoPlay={true} muted={true} />
+        <video ref={videoRef} autoPlay={false} muted={true} />
+        <audio ref={audioRef} autoPlay={false} muted={true} />
        
       </div>
     );
