@@ -26,6 +26,7 @@ const Participant = ({
       .filter((track) => track !== null);
 
   useEffect(() => {
+    if(!participant) return 
     setVideoTracks(trackpubsToTracks(participant.videoTracks));
     setAudioTracks(trackpubsToTracks(participant.audioTracks));
 
@@ -84,6 +85,8 @@ const Participant = ({
   //     <audio ref={audioRef} autoPlay={true} muted={true} />
   //   </div>
   // );
+  if(!participant) return
+  console.log("what is participant11111111", participant)
   if(!night){
     console.log("DURING THE DAY NO OTHER CHECKS")
     return (
