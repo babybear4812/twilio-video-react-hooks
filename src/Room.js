@@ -545,6 +545,10 @@ const Room = ({ roomName, token, handleLogout }) => {
         //console.log("made it into onSnapshot")
         let gameState = snapshot.data();
 
+        console.log("what is our gameStarted111", gameState)
+
+        setGameStarted(gameState.gameStarted)
+
         //console.log("gameState is", gameState)
 
         if (!gameState.gameStarted) return;

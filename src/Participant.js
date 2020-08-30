@@ -16,7 +16,8 @@ const Participant = ({
       gameStarted
    }) => {
 
-
+  let i
+  let shouldWePlay = true
   const [videoTracks, setVideoTracks] = useState([]);
   const [audioTracks, setAudioTracks] = useState([]);
 
@@ -42,6 +43,7 @@ const Participant = ({
     };
 
     const trackUnsubscribed = (track) => {
+      console.log("are we making it INTO HER?!??!?!??!?!?!?!?!?")
       if (track.kind === "video") {
         setVideoTracks((videoTracks) => videoTracks.filter((v) => v !== track));
       } else if (track.kind === "audio") {
@@ -60,6 +62,7 @@ const Participant = ({
   }, [participant]);
 
   useEffect(() => {
+    console.log("MAKING IT INTO VIDEO TRACK ATTACH?!?!?!?")
     const videoTrack = videoTracks[0];
     if (videoTrack) {
       videoTrack.attach(videoRef.current);
@@ -92,83 +95,85 @@ const Participant = ({
   //console.log.log("what is participant11111111", participant)
   if(!night){
     //console.log.log("DURING THE DAY NO OTHER CHECKS")
-    return (
-      <div>
-        <h3>DURING THE DAY NO OTHER CHECKS , role= {localRole}</h3>
-        <h2>{werewolfChoice} was killed during the night </h2>
-        <div className='participant'>
-        <h3>{participant.identity}</h3>
-        <video ref={videoRef} autoPlay={true} muted={true} />
-        <audio ref={audioRef} autoPlay={true} muted={true} />
-        <button onClick={() => handleVillagerVoteButton(participant.identity)}>Kill</button>
-      </div>
+     i = (
+    <div>
+    <h3>DURING THE DAY NO OTHER CHECKS , role= {localRole}</h3>
+    <h2>{werewolfChoice} was killed during the night </h2>
+    <div className='participant'>
+    <h3>{participant.identity}</h3>
+   
+    <button onClick={() => handleVillagerVoteButton(participant.identity)}>Kill</button>
+  </div>
 
-      </div>
+  </div>
+  
+   )
       
-    );
+
   }
   else if(!night && localRole === 'seer'){
     //console.log.log("DURING THE DAY AND WE ARE THE SEER")
-    return (
+      i = (
       <div>
-        <h3>DURING THE DAY AND WE ARE THE SEER</h3>
-        <h2>{werewolfChoice} was killed during the night , role= {localRole}</h2>
-        <h2>{didSeerHit} is a werewolf</h2>
-        <div className='participant'>
-        <h3>{participant.identity}</h3>
-        <video ref={videoRef} autoPlay={true} muted={true} />
-        <audio ref={audioRef} autoPlay={true} muted={true} />
-        <button onClick={() => handleVillagerVoteButton(participant.identity)}>Kill</button>
-      </div>
+      <h3>DURING THE DAY AND WE ARE THE SEER</h3>
+      <h2>{werewolfChoice} was killed during the night , role= {localRole}</h2>
+      <h2>{didSeerHit} is a werewolf</h2>
+      <div className='participant'>
+      <h3>{participant.identity}</h3>
+    
+      <button onClick={() => handleVillagerVoteButton(participant.identity)}>Kill</button>
+    </div>
 
-      </div>
+    </div>
+
+    )
+     
       
-    );
+  
   }
   else if(night && !checkWerewolf && localRole === 'werewolf'){
     //console.log.log("DURING THE NIGHT AND WEREWOLVES AREN'T DONE CHECKING AND WE ARE A WEREWOLF")
-    return (
+    shouldWePlay= true
+    i =  (
       <div className='participant'>
         <h3>DURING THE NIGHT AND WEREWOLVES AREN'T DONE CHECKING AND WE ARE A WEREWOLF , role= {localRole}</h3>
         <h3>{participant.identity}</h3>
-        <video ref={videoRef} autoPlay={true} muted={true} />
-        <audio ref={audioRef} autoPlay={true} muted={true} />
+   
         <button onClick={() => handleWerewolfVoteButton(participant.identity)}>Kill</button>
       </div>
     );
   }
   else if(night && checkWerewolf && !checkSeer && localRole === 'seer'){
     //console.log.log("DURIONG THE NIGHT AND WEREWOLVES ARE DONE, SEER IS NOT DONE, AND WE ARE THE SEER")
-    return (
+    i =  (
       <div className='participant'>
         <h3>DURIONG THE NIGHT AND WEREWOLVES ARE DONE, SEER IS NOT DONE, AND WE ARE THE SEER , role= {localRole}</h3>
         <h3>{participant.identity}</h3>
-        <video ref={videoRef} autoPlay={true} muted={true} />
-        <audio ref={audioRef} autoPlay={true} muted={true} />
+       
         <button onClick={(e) => handleSeerCheckButton(participant.identity)}>Check Role</button>
       </div>
     );
   }
   else if(night && checkWerewolf && checkSeer && !checkMedic && localRole === 'medic'){
     //console.log.log("DURING THE NIGHT AND WEREWOLVES ARE DONE AND SEE IS DONE AND MEDIC IS NOT DONE AND WE ARE THE MEDIC")
-    return (
+    i = (
       <div className='participant'>
         <h3>DURING THE NIGHT AND WEREWOLVES ARE DONE AND SEER IS DONE AND MEDIC IS NOT DONE AND WE ARE THE MEDIC , role= {localRole}</h3>
         <h3>{participant.identity}</h3>
-        <video ref={videoRef} autoPlay={true} muted={true} />
-        <audio ref={audioRef} autoPlay={true} muted={true} />
+        
         <button onClick={(e) => handleMedicSaveButton(participant.identity)}>Save Person</button>
       </div>
     );
   }
   else if(!gameStarted){
-    return (
+    console.log("SEER IS STILL NOT SEEING GAME STARTED")
+    shouldWePlay = true
+  i =  (
       <div className='participant'>
         <h3>GAME NOT STARTED, role= {localRole}</h3>
         <h3>{participant.identity}</h3>
         <h3>You are not allowed to see this person during the night</h3>
-        <video ref={videoRef} autoPlay={true} muted={true} />
-        <audio ref={audioRef} autoPlay={true} muted={true} />
+       
        
       </div>
     );
@@ -177,17 +182,24 @@ const Participant = ({
   else {
     //console.log.log("DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER")
     console.log("IS GAME STARTED", gameStarted)
-    return (
+    shouldWePlay = false
+i = (
       <div className='participant'>
         <h3>222DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER, OR DONE WITH OUR TASK, role= {localRole}</h3>
         <h3>{participant.identity}</h3>
         <h3>You are not allowed to see this person during the night</h3>
-        <video ref={videoRef} autoPlay={true} muted={true} />
-        <audio ref={audioRef} autoPlay={true} muted={true} />
+        
        
       </div>
-    );
+    ) 
   }
+  return (
+      <div>
+        {i}
+        <video ref={videoRef} autoPlay={shouldWePlay} muted={true} />
+        <audio ref={audioRef} autoPlay={shouldWePlay} muted={true} />
+      </div>
+  )
 
 };
 
