@@ -250,7 +250,7 @@ const Room = ({ roomName, token, handleLogout }) => {
   
    async function handleSeerCheckButton(participantIdentity, roomName) {
     const roomObj = await db
-      .collection('room')
+      .collection('rooms')
       .doc(roomName)
       .get();
   
