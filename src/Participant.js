@@ -12,8 +12,11 @@ const Participant = ({
       checkMedic,
       localRole,
       werewolfChoice,
-      didSeerHit
+      didSeerHit,
+      gameStarted
    }) => {
+
+
   const [videoTracks, setVideoTracks] = useState([]);
   const [audioTracks, setAudioTracks] = useState([]);
 
@@ -150,7 +153,7 @@ const Participant = ({
     //console.log.log("DURING THE NIGHT AND WEREWOLVES ARE DONE AND SEE IS DONE AND MEDIC IS NOT DONE AND WE ARE THE MEDIC")
     return (
       <div className='participant'>
-        <h3>DURING THE NIGHT AND WEREWOLVES ARE DONE AND SEE IS DONE AND MEDIC IS NOT DONE AND WE ARE THE MEDIC , role= {localRole}</h3>
+        <h3>DURING THE NIGHT AND WEREWOLVES ARE DONE AND SEER IS DONE AND MEDIC IS NOT DONE AND WE ARE THE MEDIC , role= {localRole}</h3>
         <h3>{participant.identity}</h3>
         <video ref={videoRef} autoPlay={true} muted={true} />
         <audio ref={audioRef} autoPlay={true} muted={true} />
@@ -158,14 +161,29 @@ const Participant = ({
       </div>
     );
   }
-  else {
-    //console.log.log("DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER")
+  else if(!gameStarted){
     return (
       <div className='participant'>
-        <h3>DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER, OR DONE WITH OUR TASK, role= {localRole}</h3>
+        <h3>GAME NOT STARTED, role= {localRole}</h3>
         <h3>{participant.identity}</h3>
-        <video ref={videoRef} autoPlay={false} muted={true} />
-        <audio ref={audioRef} autoPlay={false} muted={true} />
+        <h3>You are not allowed to see this person during the night</h3>
+        <video ref={videoRef} autoPlay={true} muted={true} />
+        <audio ref={audioRef} autoPlay={true} muted={true} />
+       
+      </div>
+    );
+
+  }
+  else {
+    //console.log.log("DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER")
+    console.log("IS GAME STARTED", gameStarted)
+    return (
+      <div className='participant'>
+        <h3>222DURING THE NIGHT BUT WE ARE A VANILLA VILLAGER, OR DONE WITH OUR TASK, role= {localRole}</h3>
+        <h3>{participant.identity}</h3>
+        <h3>You are not allowed to see this person during the night</h3>
+        <video ref={videoRef} autoPlay={true} muted={true} />
+        <audio ref={audioRef} autoPlay={true} muted={true} />
        
       </div>
     );

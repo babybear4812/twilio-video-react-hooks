@@ -21,7 +21,30 @@ const Room = ({ roomName, token, handleLogout }) => {
   const [didSeerHit, setDidSeerHit] = useState(false)
 
   //console.log("WHAT IS night", night)
+  const testingReset = () => {
+    const newGame = {
+      Night: true,
+      checkMajority: false,
+      checkMedic: false,
+      checkSeer: false,
+      checkWerewolf: false,
+      dead: [],
+      gameStarted: false,
+      majorityReached: false,
+      medic: "",
+      medicChoice: "",
+      players: [],
+      seer: "",
+      seerChoice: "",
+      villagers: [],
+      votesVillagers: [],
+      votesWerewolves: [],
+      werewolves: [],
+      werewolvesChoice: ""
 
+    }
+    db.collection('rooms').doc(roomName).update(newGame)
+  }
   const handleStartGame = () => {
     setGameStarted(true)
     //console.log("starting game")
@@ -37,6 +60,7 @@ const Room = ({ roomName, token, handleLogout }) => {
   }
   const handleLocalRole = (someValue) => { 
     // some logic
+    console.log("are we making it into handleLocalRole")
     setLocalRole(someValue)
   }
   const handleCheckMedic = (someValue) => { 
@@ -360,6 +384,7 @@ const Room = ({ roomName, token, handleLogout }) => {
       .doc(roomName)
       .get();
   
+    console.log("what is gameState in assignRoles",gameState)
     
     let players = gameState.data().players
   
@@ -413,30 +438,30 @@ const Room = ({ roomName, token, handleLogout }) => {
       .doc(roomName)
       .update({ gameStarted: true });
   
-    const gameState = db
-    .collection('rooms')
-    .doc(roomName).get()
-
     
-  
+
+
   
   //search for localUsersRole
-  let villagers = gameState.data().villagers
-  let werewolves = gameState.data().werewolves
+  villagers = gameState.data().villagers
+  werewolves = gameState.data().werewolves
   let seer = gameState.data().seer
   let medic = gameState.data().medic
   
   if(villagers.includes(localUserId)){
+    console.log("setting role as villager")
     handleLocalRole("villager")
   }
   if(werewolves.includes(localUserId)){
+    console.log("setting role as werewolf")
     handleLocalRole("werewolf")
   }
   if(seer === localUserId){
-  
+    console.log("setting role as seer")
     handleLocalRole("seer")
   }
   if(medic === localUserId){
+    console.log("setting role as medic")
     handleLocalRole("medic")
   }
   }
@@ -571,6 +596,7 @@ const Room = ({ roomName, token, handleLogout }) => {
       checkMedic={checkMedic}
       werewolfChoice={werewolfChoice}
       didSeerHit={didSeerHit}
+      gameStarted={gameStarted}
 
       
       /> 
@@ -599,12 +625,14 @@ const Room = ({ roomName, token, handleLogout }) => {
             checkMedic={checkMedic}
             werewolfChoice={werewolfChoice}
             didSeerHit={didSeerHit}
+            gameStarted={gameStarted}
           />
         ) : (
           ''
         )}
       </div>
       <button onClick={()=>{handleStartGame()}}>Start Game</button>
+      <button onClick={() => {testingReset()}}> Reset game</button>
       <h3>Remote Participants</h3>
       <div className="remote-participants">{remoteParticipants}</div>
     </div>
