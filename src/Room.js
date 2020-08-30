@@ -103,12 +103,16 @@ const Room = ({ roomName, token, handleLogout }) => {
     if (game.checkWerewolf && game.checkSeer && game.checkMedic) {
       if (game.werewolvesChoice === game.medicChoice) {
         game.werewolvesChoice = '';
+        handleWerewolfChoice("")
       } else {
         game.villagers = game.villagers.filter((villager) => {
           return villager !== game.werewolvesChoice;
         });
         if (game.werewolvesChoice !== '') {
           game.dead.push(game.werewolvesChoice);
+          game.players= game.players.filter(player => 
+            player != game.werewolvesChoice
+          )
         }
       }
     } //outer IF
@@ -238,6 +242,8 @@ const Room = ({ roomName, token, handleLogout }) => {
       .collection('rooms')
       .doc(roomName)
       .get();
+
+    console.log("Are we getting the correct", participantIdentity)
   
     votesWerewolves = votesWerewolves.data().votesWerewolves;
     votesWerewolves.push(participantIdentity);
@@ -248,7 +254,7 @@ const Room = ({ roomName, token, handleLogout }) => {
       .update({ votesWerewolves: votesWerewolves});
   }
   
-   async function handleSeerCheckButton(participantIdentity, roomName) {
+   async function handleSeerCheckButton(participantIdentity) {
     const roomObj = await db
       .collection('rooms')
       .doc(roomName)
@@ -260,13 +266,14 @@ const Room = ({ roomName, token, handleLogout }) => {
     if (werewolves.includes(participantIdentity)){
         handleDidSeerHit(participantIdentity)
     }
+    handleCheckSeer(true)
   
     await db
         .collection('rooms')
         .doc(roomName)
-        .update({ checkSeer: true});
+        .update({ checkSeer: true, seerChoice: participantIdentity});
   }
-   async function handleMedicSaveButton(participantIdentity, roomName) {
+   async function handleMedicSaveButton(participantIdentity) {
     handleCheckMedic(true)
   
     await db
@@ -548,6 +555,24 @@ const Room = ({ roomName, token, handleLogout }) => {
         console.log("what is our gameStarted111", gameState)
 
         setGameStarted(gameState.gameStarted)
+
+        setCheckSeer(gameState.checkSeer)
+        setCheckMedic(gameState.checkMedic)
+        
+        let newParticipants = gameState.players.filter(player => 
+          !gameState.dead.includes(player)    
+        )
+        console.log("FILTERED FOR DEAD PPL", newParticipants)
+
+        setParticipants(prevParticipants =>
+          prevParticipants.filter(p => newParticipants.includes(p.identity))
+        );
+        
+        
+
+        
+        
+      
 
         //console.log("gameState is", gameState)
 
