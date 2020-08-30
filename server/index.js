@@ -8,13 +8,13 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(pino);
-console.log("what is config")
+console.log('what is config');
 
 const sendTokenResponse = (token, res) => {
   res.set('Content-Type', 'application/json');
   res.send(
     JSON.stringify({
-      token: token.toJwt()
+      token: token.toJwt(),
     })
   );
 };
@@ -28,22 +28,19 @@ app.get('/api/greeting', (req, res) => {
 app.get('/video/token', (req, res) => {
   const identity = req.query.identity;
   const room = req.query.room;
-  
-  
-  
-  console.log("what is config", config)
+
+  console.log('what is config', config);
   const token = videoToken(identity, room, config);
   sendTokenResponse(token, res);
-
 });
 app.post('/video/token', (req, res) => {
   const identity = req.body.identity;
   const room = req.body.room;
-  console.log("what is config", config)
+  console.log('what is config', config);
   const token = videoToken(identity, room, config);
   sendTokenResponse(token, res);
 });
 
-app.listen(3001, () =>
+app.listen(process.env.PORT, () =>
   console.log('Express server is running on localhost:3001')
 );
