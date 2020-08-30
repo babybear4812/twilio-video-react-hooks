@@ -20,7 +20,7 @@ const Participant = ({
 
   let i
   let shouldWePlay = true
-  
+    console.log("what is checkWW", checkWerewolf)
     console.log("what is checkSeer", checkSeer)
     console.log("what is checkMedic", checkMedic)
     console.log("what is localRole", localRole)

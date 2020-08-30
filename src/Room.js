@@ -150,12 +150,16 @@ const Room = ({ roomName, token, handleLogout }) => {
         game.villagers = game.villagers.filter((villager) => {
           return villager !== game.villagersChoice;
         });
-      } else {
+      } 
+      else {
         game.werewolves = game.werewolves.filter((werewolf) => {
           return werewolf !== game.villagersChoice;
         });
       }
-      game.dead.push(game.villagersChoice);
+      if(!game.dead.includes(game.villagersChoice)){
+        game.dead.push(game.villagersChoice);
+      }
+      
     } //outer IF
     else {
       return;
@@ -206,10 +210,12 @@ const Room = ({ roomName, token, handleLogout }) => {
   
     for (let player of Object.keys(votingObject)) {
       if (votingObject[player] > Math.floor(totalPlayers / 2)) {
+        let newDead = players.data().dead
+        newDead.push(player)
         db
           .collection('rooms')
           .doc(roomName)
-          .update({ villagersChoice: player, majorityReached: true });
+          .update({ villagersChoice: player, majorityReached: true, dead: newDead });
       }
     }
   }
@@ -558,6 +564,7 @@ const Room = ({ roomName, token, handleLogout }) => {
 
         setCheckSeer(gameState.checkSeer)
         setCheckMedic(gameState.checkMedic)
+        setCheckWerewolf(gameState.checkWerewolf)
         
         let newParticipants = gameState.players.filter(player => 
           !gameState.dead.includes(player)    
